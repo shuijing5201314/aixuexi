@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI会员购买指南 - Weekend SightX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#e6f1fe',
+                            100: '#cce3fd',
+                            200: '#99c7fb',
+                            300: '#66abf9',
+                            400: '#338ff7',
+                            500: '#0073f5', // 主色调
+                            600: '#005cc4',
+                            700: '#004593',
+                            800: '#002e62',
+                            900: '#001731',
+                        },
+                        secondary: {
+                            500: '#FF6B00', // 强调色
+                        },
+                        dark: {
+                            500: '#1A1A2E', // 深色背景
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #0073f5, #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            color: #0073f5;
+        }
+        
+        .ai-assistant-container {
+            transition: all 0.3s ease;
+        }
+        
+        .ai-assistant-container.expanded {
+            height: 400px;
+        }
+        
+        /* 3D背景动画 */
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        /* 加载动画 */
+        .loader {
+            border-top-color: #0073f5;
+            animation: spinner 1.5s linear infinite;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 滚动指示器 */
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .desktop-nav {
+                display: flex;
+            }
+            
+            .mobile-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">Weekend<span class="text-primary-500">SightX</span></span>
+                </div>
+                
+                <!-- 桌面导航 -->
+                <div class="desktop-nav">
+                    <ul class="flex space-x-8">
+                        <li><a href="#home" class="text-gray-800 hover:text-primary-500 font-medium transition-colors">首页</a></li>
+                        <li><a href="#plans" class="text-gray-800 hover:text-primary-500 font-medium transition-colors">会员方案</a></li>
+                        <li><a href="#process" class="text-gray-800 hover:text-primary-500 font-medium transition-colors">购买流程</a></li>
+                        <li><a href="#faq" class="text-gray-800 hover:text-primary-500 font-medium transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 登录/注册按钮 -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="px-4 py-2 text-primary-500 hover:text-primary-600 font-medium transition-colors">登录</a>
+                    <a href="#" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">注册</a>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="mobile-nav">
+                    <button id="mobile-menu-button" class="text-gray-800 hover:text-primary-500 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 移动端导航菜单 -->
+            <div id="mobile-menu" class="mobile-nav hidden mt-4 pb-4">
+                <ul class="space-y-3">
+                    <li><a href="#home" class="block text-gray-800 hover:text-primary-500 font-medium transition-colors">首页</a></li>
+                    <li><a href="#plans" class="block text-gray-800 hover:text-primary-500 font-medium transition-colors">会员方案</a></li>
+                    <li><a href="#process" class="block text-gray-800 hover:text-primary-500 font-medium transition-colors">购买流程</a></li>
+                    <li><a href="#faq" class="block text-gray-800 hover:text-primary-500 font-medium transition-colors">常见问题</a></li>
+                    <li class="pt-3 border-t border-gray-200">
+                        <div class="flex space-x-4">
+                            <a href="#" class="flex-1 px-4 py-2 text-center text-primary-500 border border-primary-500 rounded-lg hover:bg-primary-50 font-medium transition-colors">登录</a>
+                            <a href="#" class="flex-1 px-4 py-2 text-center bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">注册</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区 -->
+    <section id="home" class="hero-gradient min-h-screen flex items-center pt-16 relative overflow-hidden">
+        <canvas id="hero-canvas"></canvas>
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 text-white mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                        简单几步，<br>
+                        <span class="gradient-text">开启AI会员之旅</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-lg">
+                        很多人不知道如何购买AI会员，我们提供简单清晰的指南，让您轻松获取AI工具的全部功能。
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#plans" class="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors text-center">
+                            查看会员方案
+                        </a>
+                        <a href="#process" class="px-8 py-3 bg-transparent border border-white text-white rounded-lg hover:bg-white hover:text-primary-500 font-medium transition-colors text-center">
+                            了解购买流程
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/dc789a5806d84db5a13cac4248c10403~tplv-a9rns2rl98-image.image?rcl=20251018152943764A3FB2E8568DDD79CE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763364611&x-signature=gUJpiJjYk2i%2BXglMHMfUapvnFzI%3D" 
+                         alt="AI技术" 
+                         class="w-full max-w-lg rounded-lg shadow-2xl animate-float">
+                </div>
+            </div>
+            
+            <!-- 滚动指示器 -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white text-center">
+                <p class="mb-2 text-sm">向下滚动了解更多</p>
+                <i class="fas fa-chevron-down scroll-indicator"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- 会员方案对比 -->
+    <section id="plans" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">选择适合您的<span class="text-primary-500">会员方案</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">我们提供多种会员方案，满足不同用户的需求。从个人用户到企业团队，都能找到合适的选择。</p>
+            </div>
+            
+            <div class="flex justify-center mb-10">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/f7f9c0bdc49c4e1aaeacb609d225a7e8~tplv-a9rns2rl98-image.image?rcl=20251018152943764A3FB2E8568DDD79CE&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763364612&x-signature=m6%2Fb69RB1wYkVVaNoZB4wIbnfTs%3D" 
+                     alt="会员等级" 
+                     class="w-full max-w-md rounded-lg shadow-lg">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- 基础会员 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-star text-primary-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">基础会员</h3>
+                        <p class="text-gray-500 mt-2">适合个人用户</p>
+                        <div class="mt-4">
+                            <span class="text-4xl font-bold">¥99</span>
+                            <span class="text-gray-500">/月</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>AI工具基础功能访问</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>每月50次AI生成次数</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>标准分辨率输出</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>邮件技术支持</span>
+                        </li>
+                        <li class="flex items-start text-gray-400">
+                            <i class="fas fa-times mt-1 mr-3"></i>
+                            <span>高级模板库</span>
+                        </li>
+                        <li class="flex items-start text-gray-400">
+                            <i class="fas fa-times mt-1 mr-3"></i>
+                            <span>团队协作功能</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                        选择基础会员
+                    </button>
+                </div>
+                
+                <!-- 高级会员 -->
+                <div class="bg-white rounded-xl shadow-xl p-8 border-2 border-primary-500 relative transform scale-105 z-10">
+                    <div class="absolute top-0 right-0 bg-primary-500 text-white px-4 py-1 rounded-bl-lg font-medium">
+                        最受欢迎
+                    </div>
+                    
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-crown text-primary-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">高级会员</h3>
+                        <p class="text-gray-500 mt-2">适合专业人士</p>
+                        <div class="mt-4">
+                            <span class="text-4xl font-bold">¥199</span>
+                            <span class="text-gray-500">/月</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>AI工具全部功能访问</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>每月200次AI生成次数</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>高分辨率输出</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>优先邮件技术支持</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>高级模板库</span>
+                        </li>
+                        <li class="flex items-start text-gray-400">
+                            <i class="fas fa-times mt-1 mr-3"></i>
+                            <span>团队协作功能</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">
+                        选择高级会员
+                    </button>
+                </div>
+                
+                <!-- 企业会员 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200 card-hover">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gem text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">企业会员</h3>
+                        <p class="text-gray-500 mt-2">适合团队和企业</p>
+                        <div class="mt-4">
+                            <span class="text-4xl font-bold">¥499</span>
+                            <span class="text-gray-500">/月</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>AI工具全部功能访问</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>每月无限次AI生成次数</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>超高分辨率输出</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>7×24小时专属客服</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>高级模板库</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span>团队协作功能（最多5人）</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors">
+                        选择企业会员
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 年付优惠 -->
+            <div class="mt-16 bg-blue-50 rounded-xl p-8 max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-6 md:mb-0">
+                        <h3 class="text-2xl font-bold mb-2">年付享优惠</h3>
+                        <p class="text-gray-600">一次性支付年费，即可享受8折优惠，立省2个月费用</p>
+                    </div>
+                    <button class="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">
+                        查看年付方案
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 购买流程 -->
+    <section id="process" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">简单<span class="text-primary-500">3步</span>，轻松购买</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">我们简化了购买流程，只需三步即可完成AI会员订阅，立即开始使用高级功能。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- 步骤1 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 text-center feature-card">
+                    <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-primary-500 text-2xl font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">注册账号</h3>
+                    <p class="text-gray-600">使用邮箱或手机号注册WeekendSightX账号，完成简单的验证流程。</p>
+                </div>
+                
+                <!-- 步骤2 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 text-center feature-card">
+                    <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-primary-500 text-2xl font-bold">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">选择方案</h3>
+                    <p class="text-gray-600">根据您的需求选择合适的会员方案，可以随时升级或降级。</p>
+                </div>
+                
+                <!-- 步骤3 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 text-center feature-card">
+                    <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-primary-500 text-2xl font-bold">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">完成支付</h3>
+                    <p class="text-gray-600">选择支付方式，完成支付后立即生效，享受AI高级功能。</p>
+                </div>
+            </div>
+            
+            <!-- 流程图示 -->
+            <div class="mt-16 max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center">购买流程图示</h3>
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <div class="text-center mb-6 md:mb-0">
+                            <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user-plus text-primary-500 text-2xl"></i>
+                            </div>
+                            <p class="font-medium">注册/登录</p>
+                        </div>
+                        
+                        <div class="hidden md:block">
+                            <i class="fas fa-arrow-right text-primary-500 text-3xl"></i>
+                        </div>
+                        <div class="md:hidden">
+                            <i class="fas fa-arrow-down text-primary-500 text-3xl"></i>
+                        </div>
+                        
+                        <div class="text-center mb-6 md:mb-0">
+                            <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-list-ul text-primary-500 text-2xl"></i>
+                            </div>
+                            <p class="font-medium">选择会员方案</p>
+                        </div>
+                        
+                        <div class="hidden md:block">
+                            <i class="fas fa-arrow-right text-primary-500 text-3xl"></i>
+                        </div>
+                        <div class="md:hidden">
+                            <i class="fas fa-arrow-down text-primary-500 text-3xl"></i>
+                        </div>
+                        
+                        <div class="text-center mb-6 md:mb-0">
+                            <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-credit-card text-primary-500 text-2xl"></i>
+                            </div>
+                            <p class="font-medium">选择支付方式</p>
+                        </div>
+                        
+                        <div class="hidden md:block">
+                            <i class="fas fa-arrow-right text-primary-500 text-3xl"></i>
+                        </div>
+                        <div class="md:hidden">
+                            <i class="fas fa-arrow-down text-primary-500 text-3xl"></i>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check text-green-500 text-2xl"></i>
+                            </div>
+                            <p class="font-medium">完成购买</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 开始按钮 -->
+            <div class="mt-12 text-center">
+                <a href="#" class="inline-block px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">
+                    立即开始购买
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI工具功能展示 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">AI工具<span class="text-primary-500">强大功能</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">成为会员后，您将解锁以下全部AI工具功能，提升工作效率和创造力。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- 功能1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-brain text-primary-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">智能内容生成</h3>
+                    <p class="text-gray-600">自动生成高质量文章、报告、营销文案等多种类型内容，节省创作时间。</p>
+                </div>
+                
+                <!-- 功能2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-bar text-green-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">数据分析与可视化</h3>
+                    <p class="text-gray-600">快速分析复杂数据，生成直观图表和报告，辅助决策制定。</p>
+                </div>
+                
+                <!-- 功能3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-language text-purple-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">多语言翻译</h3>
+                    <p class="text-gray-600">支持50+种语言的精准翻译，保持原文意思和语气。</p>
+                </div>
+                
+                <!-- 功能4 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-paint-brush text-yellow-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">AI绘画</h3>
+                    <p class="text-gray-600">根据文字描述生成高质量图像，支持多种风格和分辨率。</p>
+                </div>
+                
+                <!-- 功能5 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-robot text-red-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">聊天机器人</h3>
+                    <p class="text-gray-600">创建自定义聊天机器人，用于客户服务、信息查询等场景。</p>
+                </div>
+                
+                <!-- 功能6 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200 feature-card">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-code text-indigo-500 text-xl feature-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">代码生成与优化</h3>
+                    <p class="text-gray-600">自动生成代码片段，优化现有代码，提高开发效率。</p>
+                </div>
+            </div>
+            
+            <!-- 功能展示图 -->
+            <div class="mt-16 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://p3-doubao-search-sign.byteimg.com/labis/4905ad7243edd49d9a5afceea6fd4ae3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1765956597&x-signature=IhcCBdKfutHHh5ly8QFaAoioEf0%3D" 
+                         alt="AI功能展示" 
+                         class="w-full h-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 常见问题 -->
+    <section id="faq" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">常见<span class="text-primary-500">问题</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">我们收集了用户在购买和使用AI会员过程中最常见的问题，希望能帮助您快速了解相关信息。</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <!-- FAQ 项目 -->
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">如何选择适合我的会员方案？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            您可以根据自己的使用频率和需求来选择会员方案。如果您是个人用户，偶尔使用AI工具，基础会员可能是不错的选择；如果您是专业人士，需要频繁使用高级功能，高级会员会更适合；如果您是团队或企业用户，需要多人协作和无限次使用，企业会员是最佳选择。您也可以随时升级或降级会员方案。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">会员费用可以开发票吗？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            是的，我们提供正规发票。购买会员后，您可以在"我的账户"-"发票管理"中申请开具发票，支持增值税普通发票和增值税专用发票。一般情况下，发票会在1-3个工作日内开具并寄出。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">如何取消会员订阅？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            您可以随时在"我的账户"-"会员管理"中取消自动续费。取消后，您的会员权益将持续到当前计费周期结束，不会立即终止。我们不会收取任何取消费用。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">AI生成次数是如何计算的？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            每次使用AI工具生成内容、图像或其他结果都将消耗一次生成次数。不同类型的生成可能消耗不同的次数，具体以工具页面显示为准。每月1日零点，系统会自动重置您的生成次数。未使用的次数不会累积到下个月。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">企业会员可以添加多少团队成员？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            企业会员默认支持最多5名团队成员。如果您需要添加更多成员，可以联系我们的客服进行定制，我们会根据您的需求提供相应的解决方案和价格。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="faq-question w-full flex justify-between items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <span class="text-lg font-medium">遇到问题如何获得技术支持？</span>
+                        <i class="fas fa-chevron-down text-primary-500 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer bg-white px-6 pb-6 rounded-b-lg shadow-md hidden">
+                        <p class="text-gray-600">
+                            我们提供多种技术支持渠道：基础会员用户可以通过邮件获取支持；高级会员用户享受优先邮件支持；企业会员用户拥有7×24小时专属客服。您也可以在帮助中心查找常见问题的解决方案。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 更多问题 -->
+            <div class="mt-12 text-center">
+                <p class="text-gray-600 mb-4">还有其他问题？</p>
+                <a href="#" class="inline-block px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium transition-colors">
+                    联系客服
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 用户评价 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">用户<span class="text-primary-500">评价</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">听听其他用户对我们AI会员服务的评价，了解他们的使用体验。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- 评价1 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-primary-500 font-bold">L</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">李先生</h4>
+                            <p class="text-gray-500 text-sm">自由职业者</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600">
+                        "高级会员真的很值！AI生成的内容质量很高，帮我节省了大量创作时间。购买流程也很简单，几分钟就完成了。客服响应速度也很快，有问题能及时解决。"
+                    </p>
+                </div>
+                
+                <!-- 评价2 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-green-500 font-bold">W</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">王女士</h4>
+                            <p class="text-gray-500 text-sm">市场营销经理</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star-half-alt text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600">
+                        "我们公司购买了企业会员，团队协作功能非常实用。数据分析和可视化工具帮我们快速处理大量市场数据，生成专业报告。年付优惠也很划算，推荐给需要的企业！"
+                    </p>
+                </div>
+                
+                <!-- 评价3 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-purple-500 font-bold">Z</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">张同学</h4>
+                            <p class="text-gray-500 text-sm">大学生</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="far fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600">
+                        "作为学生，基础会员的价格很亲民，功能也足够我完成作业和论文。AI翻译工具帮我轻松阅读外文文献，代码生成功能也对我的编程学习很有帮助。"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 行动召唤 -->
+    <section class="py-20 bg-primary-500 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">立即开启您的<span class="text-yellow-300">AI会员</span>之旅</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                加入我们的会员计划，解锁AI工具的全部潜力，提升工作效率和创造力。
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="#plans" class="px-8 py-3 bg-white text-primary-500 rounded-lg hover:bg-gray-100 font-medium transition-colors">
+                    查看会员方案
+                </a>
+                <a href="#" class="px-8 py-3 bg-transparent border border-white text-white rounded-lg hover:bg-white hover:text-primary-500 font-medium transition-colors">
+                    免费试用
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- 公司信息 -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-brain text-white text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold">Weekend<span class="text-primary-500">SightX</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        提供先进的AI工具和服务，帮助用户提升工作效率和创造力。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">快速链接</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#plans" class="text-gray-400 hover:text-white transition-colors">会员方案</a></li>
+                        <li><a href="#process" class="text-gray-400 hover:text-white transition-colors">购买流程</a></li>
+                        <li><a href="#faq" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">帮助中心</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 联系方式 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">联系我们</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-400">support@weekend.sightx.top</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-400">400-123-4567</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-primary-500 mt-1 mr-3"></i>
+                            <span class="text-gray-400">北京市海淀区中关村科技园</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 订阅 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">订阅更新</h3>
+                    <p class="text-gray-400 mb-4">
+                        订阅我们的邮件，获取最新的产品更新和优惠信息。
+                    </p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="bg-primary-500 text-white px-4 py-2 rounded-r-lg hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">
+                    &copy; 2023 WeekendSightX. 保留所有权利。
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">服务条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">退款政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI助手 -->
+    <div id="ai-assistant" class="fixed bottom-6 right-6 z-40 ai-assistant-container h-16 w-16 rounded-full bg-primary-500 shadow-lg flex flex-col">
+        <!-- 助手头部 -->
+        <div class="h-16 w-full rounded-full bg-primary-500 flex items-center justify-center cursor-pointer" id="ai-assistant-toggle">
+            <i class="fas fa-robot text-white text-2xl"></i>
+        </div>
+        
+        <!-- 助手内容 -->
+        <div class="h-0 overflow-hidden bg-white rounded-t-lg shadow-2xl w-80 md:w-96">
+            <!-- 助手标题栏 -->
+            <div class="bg-primary-500 text-white p-4 rounded-t-lg flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-robot mr-2"></i>
+                    <span class="font-bold">AI会员助手</span>
+                </div>
+                <button id="ai-assistant-close" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- 助手聊天区域 -->
+            <div class="p-4 h-64 overflow-y-auto bg-gray-50" id="ai-assistant-messages">
+                <div class="flex mb-4">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                        <i class="fas fa-robot text-primary-500"></i>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow max-w-[80%]">
+                        <p>您好！我是AI会员助手，有什么可以帮您解答的问题吗？</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 助手输入区域 -->
+            <div class="p-4 border-t">
+                <div class="flex">
+                    <input type="text" id="ai-assistant-input" placeholder="请输入您的问题..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <button id="ai-assistant-send" class="bg-primary-500 text-white px-4 py-2 rounded-r-lg hover:bg-primary-600 transition-colors">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="mt-2 text-xs text-gray-500 text-center">
+                    常见问题：<a href="#" class="text-primary-500 hover:underline">如何选择会员方案？</a> | <a href="#" class="text-primary-500 hover:underline">如何取消订阅？</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-24 right-6 bg-primary-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 z-30">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 移动端菜单切换
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // FAQ 折叠面板
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    // 切换当前问题的回答显示状态
+                    answer.classList.toggle('hidden');
+                    icon.classList.toggle('transform');
+                    icon.classList.toggle('rotate-180');
+                    
+                    // 关闭其他已打开的问题
+                    faqQuestions.forEach(otherQuestion => {
+                        if (otherQuestion !== question) {
+                            const otherAnswer = otherQuestion.nextElementSibling;
+                            const otherIcon = otherQuestion.querySelector('i');
+                            
+                            if (!otherAnswer.classList.contains('hidden')) {
+                                otherAnswer.classList.add('hidden');
+                                otherIcon.classList.remove('rotate-180');
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // AI助手交互
+            const aiAssistantToggle = document.getElementById('ai-assistant-toggle');
+            const aiAssistantClose = document.getElementById('ai-assistant-close');
+            const aiAssistant = document.getElementById('ai-assistant');
+            const aiAssistantInput = document.getElementById('ai-assistant-input');
+            const aiAssistantSend = document.getElementById('ai-assistant-send');
+            const aiAssistantMessages = document.getElementById('ai-assistant-messages');
+            
+            // 预设问答
+            const aiResponses = {
+                '如何选择会员方案': '您可以根据使用频率和需求选择：基础会员适合个人偶尔使用；高级会员适合专业人士频繁使用；企业会员适合团队协作。您可以随时升级或降级方案。',
+                '如何取消订阅': '您可以在"我的账户"-"会员管理"中取消自动续费。取消后，会员权益将持续到当前周期结束，不会立即终止，也不会收取取消费用。',
+                '会员费用可以开发票吗': '是的，我们提供正规发票。购买后可在"我的账户"-"发票管理"中申请，支持增值税普通发票和专用发票，一般1-3个工作日开具。',
+                'AI生成次数如何计算': '每次使用AI工具生成内容都消耗一次次数，不同类型生成可能消耗不同次数。每月1日重置次数，未使用次数不累积到下个月。',
+                '企业会员可以添加多少团队成员': '企业会员默认支持最多5名团队成员。需要添加更多成员可以联系客服定制解决方案。'
+            };
+            
+            // 打开AI助手
+            aiAssistantToggle.addEventListener('click', function() {
+                aiAssistant.classList.toggle('expanded');
+                
+                if (aiAssistant.classList.contains('expanded')) {
+                    aiAssistant.querySelector('.h-0').classList.remove('h-0');
+                    aiAssistant.querySelector('.h-0').classList.add('h-auto');
+                } else {
+                    aiAssistant.querySelector('.h-auto').classList.remove('h-auto');
+                    aiAssistant.querySelector('.h-auto').classList.add('h-0');
+                }
+            });
+            
+            // 关闭AI助手
+            aiAssistantClose.addEventListener('click', function() {
+                aiAssistant.classList.remove('expanded');
+                aiAssistant.querySelector('.h-auto').classList.remove('h-auto');
+                aiAssistant.querySelector('.h-auto').classList.add('h-0');
+            });
+            
+            // 发送消息
+            function sendMessage() {
+                const message = aiAssistantInput.value.trim();
+                
+                if (message) {
+                    // 添加用户消息
+                    aiAssistantMessages.innerHTML += `
+                        <div class="flex mb-4 justify-end">
+                            <div class="bg-primary-500 text-white p-3 rounded-lg shadow max-w-[80%]">
+                                <p>${message}</p>
+                            </div>
+                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                                <i class="fas fa-user text-gray-600"></i>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 清空输入框
+                    aiAssistantInput.value = '';
+                    
+                    // 滚动到底部
+                    aiAssistantMessages.scrollTop = aiAssistantMessages.scrollHeight;
+                    
+                    // 显示加载状态
+                    aiAssistantMessages.innerHTML += `
+                        <div class="flex mb-4 ai-assistant-loading">
+                            <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                                <i class="fas fa-robot text-primary-500"></i>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow">
+                                <div class="flex space-x-2">
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full loader"></div>
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full loader"></div>
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full loader"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 滚动到底部
+                    aiAssistantMessages.scrollTop = aiAssistantMessages.scrollHeight;
+                    
+                    // 模拟AI回复延迟
+                    setTimeout(() => {
+                        // 移除加载状态
+                        document.querySelector('.ai-assistant-loading').remove();
+                        
+                        // 添加AI回复
+                        let response = '很抱歉，我暂时无法回答这个问题。请尝试其他问题，或者联系我们的客服获取帮助。';
+                        
+                        // 检查是否有预设回答
+                        for (const [key, value] of Object.entries(aiResponses)) {
+                            if (message.includes(key)) {
+                                response = value;
+                                break;
+                            }
+                        }
+                        
+                        aiAssistantMessages.innerHTML += `
+                            <div class="flex mb-4">
+                                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                                    <i class="fas fa-robot text-primary-500"></i>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow max-w-[80%]">
+                                    <p>${response}</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // 滚动到底部
+                        aiAssistantMessages.scrollTop = aiAssistantMessages.scrollHeight;
+                    }, 1000);
+                }
+            }
+            
+            // 发送按钮点击事件
+            aiAssistantSend.addEventListener('click', sendMessage);
+            
+            // 输入框回车事件
+            aiAssistantInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // 常见问题点击事件
+            const faqLinks = aiAssistant.querySelectorAll('.text-xs a');
+            faqLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    aiAssistantInput.value = this.textContent;
+                    sendMessage();
+                });
+            });
+            
+            // 返回顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.remove('opacity-100', 'visible');
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 3D背景动画
+            const canvas = document.getElementById('hero-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            const renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                alpha: true,
+                antialias: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            // 创建粒子
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 5;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            // 材质
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.005,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            // 创建粒子系统
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            // 位置
+            camera.position.z = 2;
+            
+            // 动画
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.y += 0.001;
+                particlesMesh.rotation.x += 0.0005;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // 窗口大小调整
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // 滚动动画
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // 会员方案卡片动画
+            gsap.utils.toArray('.card-hover').forEach((card, i) => {
+                gsap.from(card, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top bottom-=100',
+                        toggleActions: 'play none none none'
+                    },
+                    delay: i * 0.2
+                });
+            });
+            
+            // 流程步骤动画
+            gsap.utils.toArray('.feature-card').forEach((card, i) => {
+                gsap.from(card, {
+                    scale: 0.9,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top bottom-=100',
+                        toggleActions: 'play none none none'
+                    },
+                    delay: i * 0.15
+                });
+            });
+            
+            // FAQ动画
+            gsap.utils.toArray('.faq-question').forEach((question, i) => {
+                gsap.from(question, {
+                    x: -50,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: question,
+                        start: 'top bottom-=100',
+                        toggleActions: 'play none none none'
+                    },
+                    delay: i * 0.1
+                });
+            });
+        });
+    </script>
+</body>
+</html>
